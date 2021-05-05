@@ -30,3 +30,4 @@ out/
 
 # Project Specific
 /logs
+src/main/resources/application.properties
