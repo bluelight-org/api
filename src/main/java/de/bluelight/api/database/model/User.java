@@ -19,8 +19,8 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private List<Mission> missions;
-    public User() {
 
+    public User() {
     }
 
     public User(long userId, String name, String email, String password, List<Station> stations, List<Mission> missions) {

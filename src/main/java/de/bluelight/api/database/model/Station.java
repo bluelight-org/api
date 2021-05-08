@@ -17,6 +17,9 @@ public class Station {
     @JoinColumn(name = "stationId", referencedColumnName = "stationId")
     private List<Vehicle> vehicles;
 
+    public Station() {
+    }
+
     public Station(long stationId, String name, double latitude, double longitude, List<Vehicle> vehicles) {
         this.stationId = stationId;
         this.name = name;

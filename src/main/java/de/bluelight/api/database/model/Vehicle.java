@@ -14,7 +14,6 @@ public class Vehicle {
     private String type;
 
     public Vehicle() {
-
     }
 
     public Vehicle(long vehicleId, int fms, String name, String type) {

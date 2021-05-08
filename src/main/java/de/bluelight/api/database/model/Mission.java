@@ -21,6 +21,9 @@ public class Mission {
     @JoinColumn(name = "missionId", referencedColumnName = "missionId")
     private List<Vehicle> vehicles;
 
+    public Mission() {
+    }
+
     public Mission(long missionId, String address,
                    double latitude,
                    double longitude,
