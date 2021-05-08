@@ -1,7 +1,5 @@
 package de.bluelight.api.controller.profile;
 
-import org.hibernate.validator.constraints.Length;
-
 import javax.validation.constraints.NotBlank;
 
 public class ProfileDTO {

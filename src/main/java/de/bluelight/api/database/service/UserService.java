@@ -4,11 +4,16 @@ import de.bluelight.api.controller.profile.ProfileDTO;
 import de.bluelight.api.database.dao.UserDao;
 import de.bluelight.api.database.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserDao userDao;
@@ -31,4 +36,15 @@ public class UserService {
         return userDao.getEmailCount(email) == 0;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        User user = userDao.getByName(name).orElseThrow(() ->
+                new UsernameNotFoundException(String.format("Username %s not found", name))
+        );
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getName())
+                .password(user.getPassword())
+                .authorities(new ArrayList<>())
+                .build();
+    }
 }

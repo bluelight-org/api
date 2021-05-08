@@ -6,7 +6,6 @@ import de.bluelight.api.util.ResponseBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,15 +19,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping(
         value = "/profile",
-        consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
 )
 public class ProfileController {
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> createProfile(@Valid @RequestBody ProfileDTO profileDTO) {
         if (!userService.isEmailAvailable(profileDTO.getEmail())) {
             return ResponseEntity.badRequest().body(new ResponseBuilder(BAD_REQUEST).error("The provided email is already taken!"));
