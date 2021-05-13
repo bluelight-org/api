@@ -1,9 +1,11 @@
 package de.bluelight.api;
 
+import de.bluelight.api.security.jwt.JwtUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class Bootstrapper {
@@ -13,8 +15,13 @@ public class Bootstrapper {
     }
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder();
+    }
+
+    @Bean
+    public JwtUtil jwtService() {
+        return new JwtUtil();
     }
 
 }

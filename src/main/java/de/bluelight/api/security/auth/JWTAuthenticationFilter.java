@@ -1,42 +1,42 @@
 package de.bluelight.api.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.bluelight.api.security.user.User;
+import de.bluelight.api.entities.LoginDto;
+import de.bluelight.api.security.jwt.JwtGenerationResult;
+import de.bluelight.api.security.jwt.JwtUtil;
 import de.bluelight.api.util.ResponseBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Map;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
         try {
-            User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
-            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+            LoginDto loginDto = new ObjectMapper().readValue(request.getInputStream(), LoginDto.class);
+            return authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    loginDto.getUsername(),
+                    loginDto.getPassword())
+            );
         } catch (IOException ignored) {
             response.setContentType("application/json");
             response.setStatus(400);
@@ -63,15 +63,10 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException {
-        String token = Jwts.builder()
-                .setSubject(authResult.getName())
-                .claim("authorities", authResult.getAuthorities())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 60000))
-                .signWith(Keys.hmacShaKeyFor("secureecureecureecureecuresecureecureecureecureecuresecureecureecureecureecure".getBytes()))
-                .compact();
-
+        JwtGenerationResult jwt = jwtUtil.generateRefreshToken(authResult);
         response.setContentType("application/json");
-        response.getWriter().write(new ResponseBuilder(HttpStatus.OK).data(Map.of("refreshToken", token)));
+        response.getWriter().write(new ResponseBuilder(HttpStatus.OK).data(
+                Map.of("refreshToken", jwt.getToken(), "expiresAt", jwt.getExpirationDate().getTime()))
+        );
     }
 }

@@ -2,6 +2,7 @@ package de.bluelight.api.controller.profile;
 
 import de.bluelight.api.database.model.User;
 import de.bluelight.api.database.service.UserService;
+import de.bluelight.api.entities.CreateProfileDto;
 import de.bluelight.api.util.ResponseBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,11 +28,11 @@ public class ProfileController {
     private UserService userService;
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> createProfile(@Valid @RequestBody ProfileDTO profileDTO) {
-        if (!userService.isEmailAvailable(profileDTO.getEmail())) {
+    public ResponseEntity<String> createProfile(@Valid @RequestBody CreateProfileDto createProfileDto) {
+        if (!userService.isEmailAvailable(createProfileDto.getEmail())) {
             return ResponseEntity.badRequest().body(new ResponseBuilder(BAD_REQUEST).error("The provided email is already taken!"));
         }
-        User user = userService.createUser(profileDTO);
+        User user = userService.createUser(createProfileDto);
         Map<String, Object> response = new HashMap<>();
         response.put("name", user.getName());
         response.put("email", user.getEmail());

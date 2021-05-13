@@ -1,6 +1,6 @@
-package de.bluelight.api.security.user;
+package de.bluelight.api.entities;
 
-public class User {
+public class LoginDto {
 
     private String username;
     private String password;

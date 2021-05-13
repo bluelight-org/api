@@ -1,16 +1,13 @@
 package de.bluelight.api.security.auth;
 
+import de.bluelight.api.security.jwt.JwtParseResult;
+import de.bluelight.api.security.jwt.JwtUtil;
 import de.bluelight.api.util.ResponseBuilder;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,12 +16,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class JWTVerifier extends OncePerRequestFilter {
+
+    private final JwtUtil jwtUtil;
+
+    public JWTVerifier(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -40,24 +39,14 @@ public class JWTVerifier extends OncePerRequestFilter {
         }
 
         try {
-            String token = authorizationHeader.replace("Bearer ", "");
-            Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(Keys.hmacShaKeyFor("secureecureecureecureecuresecureecureecureecureecuresecureecureecureecureecure".getBytes()))
-                    .build()
-                    .parseClaimsJws(token);
+            JwtParseResult jwt = jwtUtil.parse(authorizationHeader);
 
-            Claims body = claims.getBody();
-            String username = body.getSubject();
-            List<Map<String, String>> authorities = (List<Map<String, String>>) body.get("authorities");
-
-            Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities
-                    .stream().map(map -> new SimpleGrantedAuthority(map.get("authority"))).collect(Collectors.toSet());
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username,
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    jwt.getUsername(),
                     null,
-                    simpleGrantedAuthorities);
+                    jwt.getGrantedAuthorities()
+            );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
         } catch (JwtException e) {
             response.setContentType("application/json");
             response.setStatus(401);

@@ -1,13 +1,13 @@
 package de.bluelight.api.database.service;
 
-import de.bluelight.api.controller.profile.ProfileDTO;
+import de.bluelight.api.entities.CreateProfileDto;
 import de.bluelight.api.database.dao.UserDao;
 import de.bluelight.api.database.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,17 +18,17 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserDao userDao;
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     public User getUser(long userId) {
         return userDao.findById(userId).orElseThrow();
     }
 
-    public User createUser(ProfileDTO profileDTO) {
+    public User createUser(CreateProfileDto createProfileDto) {
         User user = new User();
-        user.setName(profileDTO.getName());
-        user.setEmail(profileDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(profileDTO.getPassword()));
+        user.setName(createProfileDto.getName());
+        user.setEmail(createProfileDto.getEmail());
+        user.setPassword(passwordEncoder.encode(createProfileDto.getPassword()));
         return userDao.save(user);
     }
 

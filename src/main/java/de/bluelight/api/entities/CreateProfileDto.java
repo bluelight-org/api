@@ -1,8 +1,8 @@
-package de.bluelight.api.controller.profile;
+package de.bluelight.api.entities;
 
 import javax.validation.constraints.NotBlank;
 
-public class ProfileDTO {
+public class CreateProfileDto {
 
     @NotBlank(message = "Name must not be empty!")
     private String name;
@@ -11,10 +11,10 @@ public class ProfileDTO {
     @NotBlank(message = "Password must not be empty!")
     private String password;
 
-    public ProfileDTO() {
+    public CreateProfileDto() {
     }
 
-    public ProfileDTO(String name, String email, String password) {
+    public CreateProfileDto(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
